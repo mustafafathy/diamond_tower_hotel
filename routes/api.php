@@ -21,7 +21,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('rooms', [RoomController::class, 'index']);
+Route::get('rooms/{lang?}', [RoomController::class, 'index']);
 Route::get('website-data', [WebsiteDataController::class, 'index']);
 Route::get('slider', [WebsiteDataController::class, 'slider']);
 Route::post('contact', [ContactController::class, 'create']);

@@ -7,6 +7,7 @@ use App\Filament\Resources\RoomResource\RelationManagers;
 use App\Models\Room;
 use Doctrine\DBAL\Schema\Schema;
 use Filament\Forms;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
@@ -137,24 +138,49 @@ class RoomResource extends Resource
                 ])->columns(2),
 
                 Section::make('تجهيزات الغرفة')->schema([
-                    Repeater::make('preparations_en')
-                        ->label('Preparation Details (English)')
+                    Grid::make(2) // Create a two-column grid layout
                         ->schema([
-                            TextInput::make('detail')
-                                ->label('Detail')
-                                ->required(),
-                        ])
-                        ->default([]),
-                    Repeater::make('preparations_ar')
-                        ->label('Preparation Details (Arabic)')
+                            Repeater::make('preparations_en')
+                                ->label('Preparation Details (English)')
+                                ->schema([
+                                    TextInput::make('detail')
+                                        ->label('Detail')
+                                        ->required(),
+                                ])
+                                ->default([]),
+    
+                            Repeater::make('preparations_ar')
+                                ->label('Preparation Details (Arabic)')
+                                ->schema([
+                                    TextInput::make('detail')
+                                        ->label('Detail')
+                                        ->required()
+                                        ->extraAttributes(['style' => 'direction:rtl']),
+                                ])
+                                ->default([]),
+                        ]),
+                    Grid::make(2) // Another two-column grid for additional repeaters
                         ->schema([
-                            TextInput::make('detail')
-                                ->label('Detail')
-                                ->required()
-                                ->extraAttributes(['style' => 'direction:rtl']),
-                        ])
-                        ->default([]),
-                ])->columns(2),
+                            Repeater::make('preparations_en') // Second English repeater
+                                ->label('Preparation Details (English)')
+                                ->schema([
+                                    TextInput::make('detail')
+                                        ->label('Detail')
+                                        ->required(),
+                                ])
+                                ->default([]),
+    
+                            Repeater::make('preparations_ar') // Second Arabic repeater
+                                ->label('Preparation Details (Arabic)')
+                                ->schema([
+                                    TextInput::make('detail')
+                                        ->label('Detail')
+                                        ->required()
+                                        ->extraAttributes(['style' => 'direction:rtl']),
+                                ])
+                                ->default([]),
+                        ]),
+                ]),
 
 
                 Section::make('الوسائط والتكنولوجيا')->schema([

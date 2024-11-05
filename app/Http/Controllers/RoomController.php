@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\RoomCollection;
+use App\Http\Resources\RoomResource;
 use App\Models\Room;
 use Illuminate\Http\Request;
 
@@ -10,9 +12,36 @@ class RoomController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($lang = 'ar')
     {
-        return Room::get();
+        $lang = $lang == 'en' ? 'en' : 'ar';
+        
+        $cols = [
+            'name_' . $lang,
+            'description_' . $lang,
+            'space',
+            'allowed_persons',
+            'availability',
+            'view',
+            'bathroom',
+            'kitchen',
+            'tv',
+            'air_condition',
+            'wifi',
+            'smoke',
+            'disabled',
+            'king_bed',
+            'single_bed',
+            'sofa_bed',
+            'bathroom_details_' . $lang,
+            'kitchen_details_' . $lang,
+            'preparations_' . $lang,
+            'media_tech_' . $lang,
+            'image',
+            'alt_images'
+        ];
+
+        return new RoomCollection(new RoomResource(Room::select($cols)->get()));
     }
 
     /**
