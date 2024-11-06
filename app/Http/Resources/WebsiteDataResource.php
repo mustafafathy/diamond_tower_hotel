@@ -15,14 +15,14 @@ class WebsiteDataResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'rooms_count' => $this->when($this->projects_count, $this->projects_count),
-            'phone_num1' => $this->when($this->units_count, $this->units_count),
-            'phone_num2' => $this->when($this->res_num1, $this->res_num1),
-            'email' => $this->when($this->res_num2, $this->res_num2),
-            'address' => $this->when($this->whats_app_num, $this->whats_app_num),
-            'latitude' => $this->when($this->instagram_link, $this->instagram_link),
-            'longitude' => $this->when($this->email, $this->email),
-            'instagram_link' => $this->when($this->footer_num1, $this->footer_num1),
+            'rooms_count' => $this->when($this->rooms_count, $this->rooms_count),
+            'phone_num1' => $this->when($this->phone_num1, $this->phone_num1),
+            'phone_num2' => $this->when($this->phone_num2, $this->phone_num2),
+            'email' => $this->when($this->email, $this->email),
+            'address' => $this->when($this->address, $this->address),
+            'latitude' => $this->when($this->latitude, $this->latitude),
+            'longitude' => $this->when($this->longitude, $this->longitude),
+            'instagram_link' => $this->when($this->instagram_link, $this->instagram_link),
         ];
     }
 
