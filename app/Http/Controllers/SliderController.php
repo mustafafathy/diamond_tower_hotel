@@ -12,7 +12,13 @@ class SliderController extends Controller
      */
     public function index()
     {
-        //
+        return Slider::orderBy('order')
+            ->select('id', 'image')
+            ->get()
+            ->map(function ($item) {
+                $item->image = asset('storage/' . $item->image);
+                return $item;
+            });
     }
 
     /**

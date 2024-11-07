@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('secondary_sliders', function (Blueprint $table) {
-            $table->id();
-            $table->string('image');
-            $table->integer('order')->nullable();
-            $table->timestamps();
+        Schema::table('rooms', function (Blueprint $table) {
+            $table->float('night_price')->default(0)->after('description_en');
+            $table->float('discount_price')->default(0)->after('night_price');
         });
     }
 
@@ -24,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('secondary_sliders');
+        Schema::table('rooms', function (Blueprint $table) {
+            //
+        });
     }
 };

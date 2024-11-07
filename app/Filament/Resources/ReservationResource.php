@@ -38,6 +38,14 @@ class ReservationResource extends Resource
                 Forms\Components\TextInput::make('total_price')
                     ->required()
                     ->numeric(),
+                Forms\Components\TextInput::make('discount')
+                    ->required()
+                    ->numeric()
+                    ->default(0.00),
+                Forms\Components\TextInput::make('tax')
+                    ->required()
+                    ->numeric()
+                    ->default(0.00),
                 Forms\Components\TextInput::make('number_of_guests')
                     ->required()
                     ->numeric(),
@@ -68,6 +76,12 @@ class ReservationResource extends Resource
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('total_price')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('discount')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('tax')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('number_of_guests')
