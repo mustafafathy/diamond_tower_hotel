@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Room;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Room;
 
 class RoomSeeder extends Seeder
 {
@@ -13,54 +12,177 @@ class RoomSeeder extends Seeder
      */
     public function run(): void
     {
-        Room::create([
-            'name_ar' => 'جناح متصل سوبيريور',
-            'name_en' => 'Superior Connecting Suite',
-
-            'description_ar' => 'يشمل المطبخ الصغير المجهز بالكامل ثلاجة وأدوات مطبخ وميكروويف وغلاية كهربائية. تتميز الغرفة الواسعة بأنها مكيفة وتوفر مدخلاً خاصًا بالإضافة إلى حمام خاص مزود بمقصورة دش ومجفف للشعر فيما تضم هذه الوحدة سريراً واحداً.',
-            'description_en' => 'The fully equipped kitchenette includes a refrigerator, kitchenware, microwave, and electric kettle. The spacious room is air-conditioned and features a private entrance along with a private bathroom equipped with a shower cabin and a hairdryer. This unit includes one bed.',
-
-            'space' => 70, // 70 square meters
-            'allowed_persons' => 4, // Maximum capacity of 4 persons
-            'availability' => 1, // Assuming 1 means available, 0 means unavailable
-
-            // Room amenities
-            'view' => true,
-            'bathroom' => true,
-            'kitchen' => true,
-            'tv' => true,
-            'air_condition' => true,
-            'wifi' => true,
-            'smoke' => false,
-            'disabled' => false,
-
-            // Bed configuration
-            'king_bed' => 1,
-            'single_bed' => 2,
-            'sofa_bed' => 0,
-
-            // Bathroom details
-            'bathroom_details_ar' => 'تجهيزات الحمام تشمل مستلزمات مجانية، مجفف شعر، مرحاض، ورق تواليت، حوض استحمام أو دش.',
-            'bathroom_details_en' => 'Bathroom amenities include free toiletries, hairdryer, toilet, toilet paper, bath or shower.',
-
-            // Kitchen details
-            'kitchen_details_ar' => 'مطبخ صغير، ثلاجة، ميكروويف، أدوات المطبخ، غلاية كهربائية، طاولة طعام.',
-            'kitchen_details_en' => 'Kitchenette, refrigerator, microwave, kitchenware, electric kettle, dining table.',
-
-            // Room preparations
-            'preparations_ar' => 'خزانة، طاولة طعام، تلفاز بشاشة مسطحة، خدمة إيقاظ، هاتف، مكواة، منطقة جلوس، رف ملابس، تكييف هواء في غرفة واحدة لإقامة الضيوف.',
-            'preparations_en' => 'Wardrobe, dining table, flat-screen TV, wake-up service, phone, iron, seating area, clothes rack, air conditioning in one guest room.',
-
-            // Media and Technology
-            'media_tech_ar' => 'تجهيزات الإنترنت، إنترنت عالي السرعة، تلفاز بشاشة مسطحة، قنوات الكابل.',
-            'media_tech_en' => 'Internet facilities, high-speed internet, flat-screen TV, cable channels.',
-
-            // Image paths
-            'image' => 'images/suite_main.jpg', // Main image path
-            'alt_images' => json_encode(['images/suite_alt1.jpg', 'images/suite_alt2.jpg']), // Alternative images as JSON array
-
-            'created_at' => now(),
-            'updated_at' => now(),
+        Room::insert([
+            [
+                'name_ar' => 'غرفة ديلوكس',
+                'name_en' => 'Deluxe Room',
+                'description_ar' => 'غرفة ديلوكس مع إطلالة رائعة على البحر.',
+                'description_en' => 'Deluxe room with a beautiful sea view.',
+                'space' => 50,
+                'allowed_persons' => 2,
+                'availability' => 1,
+                'view' => true,
+                'bathroom' => true,
+                'kitchen' => false,
+                'tv' => true,
+                'air_condition' => true,
+                'wifi' => true,
+                'smoke' => false,
+                'disabled' => false,
+                'king_bed' => 1,
+                'single_bed' => 0,
+                'sofa_bed' => 1,
+                'night_price' => 120.00,
+                'discount_price' => 100.00,
+                'bathroom_details_ar' => ['دش', 'حوض استحمام'],
+                'bathroom_details_en' => ['Shower', 'Bathtub'],
+                'kitchen_details_ar' => null,
+                'kitchen_details_en' => null,
+                'preparations_ar' => ['منشفة', 'مجفف شعر'],
+                'preparations_en' => ['Towel', 'Hair Dryer'],
+                'media_tech_ar' => ['تلفزيون', 'واي فاي'],
+                'media_tech_en' => ['TV', 'Wi-Fi'],
+                'image' => 'deluxe_room.jpg',
+                'alt_images' => ['deluxe_room_alt1.jpg', 'deluxe_room_alt2.jpg'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name_ar' => 'غرفة عائلية',
+                'name_en' => 'Family Room',
+                'description_ar' => 'غرفة عائلية مريحة تناسب جميع أفراد الأسرة.',
+                'description_en' => 'Comfortable family room suitable for all family members.',
+                'space' => 80,
+                'allowed_persons' => 4,
+                'availability' => 1,
+                'view' => true,
+                'bathroom' => true,
+                'kitchen' => true,
+                'tv' => true,
+                'air_condition' => true,
+                'wifi' => true,
+                'smoke' => false,
+                'disabled' => false,
+                'king_bed' => 1,
+                'single_bed' => 2,
+                'sofa_bed' => 1,
+                'night_price' => 200.00,
+                'discount_price' => 180.00,
+                'bathroom_details_ar' => ['دش', 'حوض مزدوج'],
+                'bathroom_details_en' => ['Shower', 'Double Sink'],
+                'kitchen_details_ar' => ['ثلاجة', 'ميكروويف'],
+                'kitchen_details_en' => ['Fridge', 'Microwave'],
+                'preparations_ar' => ['مجفف شعر', 'مناشف إضافية'],
+                'preparations_en' => ['Hair Dryer', 'Extra Towels'],
+                'media_tech_ar' => ['تلفزيون', 'نظام صوت'],
+                'media_tech_en' => ['TV', 'Sound System'],
+                'image' => 'family_room.jpg',
+                'alt_images' => ['family_room_alt1.jpg', 'family_room_alt2.jpg'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name_ar' => 'جناح رجال الأعمال',
+                'name_en' => 'Business Suite',
+                'description_ar' => 'جناح خاص لرجال الأعمال.',
+                'description_en' => 'Exclusive suite for business travelers.',
+                'space' => 60,
+                'allowed_persons' => 2,
+                'availability' => 1,
+                'view' => true,
+                'bathroom' => true,
+                'kitchen' => false,
+                'tv' => true,
+                'air_condition' => true,
+                'wifi' => true,
+                'smoke' => false,
+                'disabled' => true,
+                'king_bed' => 1,
+                'single_bed' => 0,
+                'sofa_bed' => 0,
+                'night_price' => 150.00,
+                'discount_price' => 130.00,
+                'bathroom_details_ar' => ['دش', 'مناشف فاخرة'],
+                'bathroom_details_en' => ['Shower', 'Luxury Towels'],
+                'kitchen_details_ar' => null,
+                'kitchen_details_en' => null,
+                'preparations_ar' => ['مكتب', 'كرسي مريح'],
+                'preparations_en' => ['Desk', 'Comfortable Chair'],
+                'media_tech_ar' => ['تلفزيون', 'انترنت عالي السرعة'],
+                'media_tech_en' => ['TV', 'High-Speed Internet'],
+                'image' => 'business_suite.jpg',
+                'alt_images' => ['business_suite_alt1.jpg', 'business_suite_alt2.jpg'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name_ar' => 'غرفة مفردة',
+                'name_en' => 'Single Room',
+                'description_ar' => 'غرفة اقتصادية مفردة.',
+                'description_en' => 'Economical single room.',
+                'space' => 30,
+                'allowed_persons' => 1,
+                'availability' => 1,
+                'view' => false,
+                'bathroom' => true,
+                'kitchen' => false,
+                'tv' => true,
+                'air_condition' => false,
+                'wifi' => true,
+                'smoke' => true,
+                'disabled' => false,
+                'king_bed' => 0,
+                'single_bed' => 1,
+                'sofa_bed' => 0,
+                'night_price' => 60.00,
+                'discount_price' => 50.00,
+                'bathroom_details_ar' => ['دش'],
+                'bathroom_details_en' => ['Shower'],
+                'kitchen_details_ar' => null,
+                'kitchen_details_en' => null,
+                'preparations_ar' => ['منشفة'],
+                'preparations_en' => ['Towel'],
+                'media_tech_ar' => ['تلفزيون'],
+                'media_tech_en' => ['TV'],
+                'image' => 'single_room.jpg',
+                'alt_images' => ['single_room_alt1.jpg', 'single_room_alt2.jpg'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name_ar' => 'غرفة مزدوجة',
+                'name_en' => 'Double Room',
+                'description_ar' => 'غرفة مريحة لشخصين.',
+                'description_en' => 'Comfortable double room for two.',
+                'space' => 40,
+                'allowed_persons' => 2,
+                'availability' => 1,
+                'view' => true,
+                'bathroom' => true,
+                'kitchen' => false,
+                'tv' => true,
+                'air_condition' => true,
+                'wifi' => false,
+                'smoke' => false,
+                'disabled' => false,
+                'king_bed' => 1,
+                'single_bed' => 0,
+                'sofa_bed' => 0,
+                'night_price' => 90.00,
+                'discount_price' => 80.00,
+                'bathroom_details_ar' => ['حوض استحمام'],
+                'bathroom_details_en' => ['Bathtub'],
+                'kitchen_details_ar' => null,
+                'kitchen_details_en' => null,
+                'preparations_ar' => ['منشفة', 'شامبو'],
+                'preparations_en' => ['Towel', 'Shampoo'],
+                'media_tech_ar' => ['تلفزيون'],
+                'media_tech_en' => ['TV'],
+                'image' => 'double_room.jpg',
+                'alt_images' => ['double_room_alt1.jpg', 'double_room_alt2.jpg'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ]);
     }
 }
