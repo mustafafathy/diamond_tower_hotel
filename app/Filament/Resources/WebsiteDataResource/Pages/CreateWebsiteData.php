@@ -8,5 +8,5 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateWebsiteData extends CreateRecord
 {
-    protected static string $resource = WebsiteDataResource::class;
+    // protected static string $resource = WebsiteDataResource::class;
 }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SecondarySlider;
+use App\Models\Slider;
 use App\Models\WebsiteData;
 use Illuminate\Http\Request;
 
@@ -10,9 +12,22 @@ class WebsiteDataController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($lang = 'ar')
     {
-        return WebsiteData::first();
+        $lang = $lang == 'en' ? 'en' : 'ar';
+
+        $cols = [
+            'rooms_count',
+            'phone_num1',
+            'phone_num2',
+            'email',
+            'address_'.$lang,
+            'latitude',
+            'longitude',
+            'instagram_link',
+        ];
+
+        return WebsiteData::select($cols)->first();
     }
 
     /**
@@ -73,4 +88,15 @@ class WebsiteDataController extends Controller
                 return $item;
             });
     }  
+
+    public function secondarySlider()
+    {
+        return SecondarySlider::orderBy('order')
+            ->select('id', 'image')
+            ->get()
+            ->map(function ($item) {
+                $item->image = asset('storage/' . $item->image);
+                return $item;
+            });
+    } 
 }

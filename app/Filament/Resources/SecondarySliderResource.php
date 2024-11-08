@@ -24,7 +24,11 @@ class SecondarySliderResource extends Resource
         return $form
             ->schema([
                 Forms\Components\FileUpload::make('image')
+                    ->label('Image ')
                     ->image()
+                    ->directory('images/secondarySlider')
+                    ->visibility('public')
+                    ->acceptedFileTypes(['image/*'])
                     ->required(),
                 Forms\Components\TextInput::make('order')
                     ->numeric(),

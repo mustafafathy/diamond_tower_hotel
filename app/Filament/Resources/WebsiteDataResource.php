@@ -6,6 +6,7 @@ use App\Filament\Resources\WebsiteDataResource\Pages;
 use App\Filament\Resources\WebsiteDataResource\RelationManagers;
 use App\Models\WebsiteData;
 use Filament\Forms;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -26,27 +27,40 @@ class WebsiteDataResource extends Resource
                 Forms\Components\TextInput::make('rooms_count')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('phone_num1')
-                    ->tel()
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('phone_num2')
-                    ->tel()
-                    ->required()
-                    ->maxLength(255),
                 Forms\Components\TextInput::make('email')
                     ->email()
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('address')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('latitude')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('longitude')
-                    ->required()
-                    ->numeric(),
+                Section::make()
+                    ->schema([
+                        Forms\Components\TextInput::make('phone_num1')
+                            ->tel()
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('phone_num2')
+                            ->tel()
+                            ->required()
+                            ->maxLength(255),
+                    ])->columns(2),
+                Section::make()
+                    ->schema([
+                        Forms\Components\TextInput::make('address_en')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('address_ar')
+                            ->required()
+                            ->maxLength(255)
+                            ->extraAttributes(['style' => 'direction:rtl']),
+                    ])->columns(2),
+                Section::make()
+                    ->schema([
+                        Forms\Components\TextInput::make('latitude')
+                            ->required()
+                            ->numeric(),
+                        Forms\Components\TextInput::make('longitude')
+                            ->required()
+                            ->numeric(),
+                    ])->columns(2),
                 Forms\Components\TextInput::make('instagram_link')
                     ->required()
                     ->maxLength(255),
@@ -90,11 +104,6 @@ class WebsiteDataResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 
@@ -109,7 +118,7 @@ class WebsiteDataResource extends Resource
     {
         return [
             'index' => Pages\ListWebsiteData::route('/'),
-            'create' => Pages\CreateWebsiteData::route('/create'),
+            // 'create' => Pages\CreateWebsiteData::route('/create'),
             'edit' => Pages\EditWebsiteData::route('/{record}/edit'),
         ];
     }

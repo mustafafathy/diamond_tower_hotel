@@ -10,10 +10,4 @@ class ListWebsiteData extends ListRecords
 {
     protected static string $resource = WebsiteDataResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\CreateAction::make(),
-        ];
-    }
 }
