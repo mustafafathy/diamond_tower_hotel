@@ -45,6 +45,10 @@ class RoomResource extends JsonResource
             'media_tech_en'  => $this->when($this->media_tech_en, $this->media_tech_en),
             'image'  => $this->when($this->image, asset('storage/' . $this->image)),
             'alt_images'     => $this->when($this->alt_images, $this->alt_images ? $this->generateAltImagesUrls() : ''),
+
+            'nights' => $this->when($this->nights, $this->nights),
+            'member_pay' => $this->when($this->nights, ($this->discount_price * $this->nights)),
+            'public_pay' => $this->when($this->nights, ($this->night_price * $this->nights)),
         ];
     }
 

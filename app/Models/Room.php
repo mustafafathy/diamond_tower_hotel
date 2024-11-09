@@ -23,4 +23,9 @@ class Room extends Model
         'media_tech_ar' => 'array',
         'media_tech_en' => 'array',
     ];
+
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class);
+    }
 }

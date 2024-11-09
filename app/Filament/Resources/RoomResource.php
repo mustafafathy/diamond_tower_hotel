@@ -50,6 +50,17 @@ class RoomResource extends Resource
                         ->extraAttributes(['style' => 'direction:rtl']),
                 ])->columns(2),
 
+                section::make('Pricing')
+                    ->schema([
+                        Forms\Components\TextInput::make('night_price')
+                            ->required()
+                            ->numeric(),
+                        Forms\Components\TextInput::make('discount_price')
+                            ->required()
+                            ->numeric()
+                            ->label('Member Price'),
+                    ])->columns(2),
+
                 Section::make('Features')->schema([
                     Forms\Components\TextInput::make('space')
                         ->required()
@@ -60,7 +71,7 @@ class RoomResource extends Resource
                     Forms\Components\TextInput::make('availability')
                         ->required()
                         ->numeric(),
-                ])->columns(3),
+                ])->columns(2),
 
                 Section::make('Features')->schema([
                     Forms\Components\Toggle::make('view')
@@ -148,7 +159,7 @@ class RoomResource extends Resource
                                         ->required(),
                                 ])
                                 ->default([]),
-    
+
                             Repeater::make('preparations_ar')
                                 ->label('Preparation Details (Arabic)')
                                 ->schema([
@@ -169,7 +180,7 @@ class RoomResource extends Resource
                                         ->required(),
                                 ])
                                 ->default([]),
-    
+
                             Repeater::make('preparations_ar') // Second Arabic repeater
                                 ->label('Preparation Details (Arabic)')
                                 ->schema([
@@ -230,6 +241,15 @@ class RoomResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name_ar')
                     ->searchable(),
+
+                Tables\Columns\TextColumn::make('discount_price')
+                    ->numeric()
+                    ->sortable()
+                    ->label('Member Price'),
+                Tables\Columns\TextColumn::make('night_price')
+                    ->numeric()
+                    ->sortable()
+                    ->label('Public Price'),
                 Tables\Columns\TextColumn::make('space')
                     ->numeric()
                     ->sortable(),
