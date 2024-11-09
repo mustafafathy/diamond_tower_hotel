@@ -21,7 +21,7 @@ class WebsiteDataController extends Controller
             'phone_num1',
             'phone_num2',
             'email',
-            'address_'.$lang,
+            'address_'.$lang . ' as address',
             'latitude',
             'longitude',
             'instagram_link',

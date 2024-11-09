@@ -49,6 +49,8 @@ class ContactResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phone')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->searchable(),
                 Tables\Columns\IconColumn::make('is_read')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('message')
