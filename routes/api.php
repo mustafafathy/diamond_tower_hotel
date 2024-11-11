@@ -26,4 +26,5 @@ Route::get('slider', [WebsiteDataController::class, 'slider']);
 Route::get('secondarySlider', [WebsiteDataController::class, 'secondarySlider']);
 Route::post('contact', [ContactController::class, 'create']);
 Route::get('rooms/{lang?}', [RoomController::class, 'index']);
+Route::get('room/{id}/{lang?}', [RoomController::class, 'show']);
 Route::get('get-available-rooms/{lang?}', [RoomController::class, 'getAvailableRooms']);

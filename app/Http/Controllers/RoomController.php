@@ -65,9 +65,36 @@ class RoomController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Room $room)
+    public function show($id, $lang = 'ar')
     {
-        //
+        $lang = $lang == 'en' ? 'en' : 'ar';
+
+        $cols = [
+            'name_' . $lang,
+            'description_' . $lang,
+            'space',
+            'allowed_persons',
+            'availability',
+            'view',
+            'bathroom',
+            'kitchen',
+            'tv',
+            'air_condition',
+            'wifi',
+            'smoke',
+            'disabled',
+            'king_bed',
+            'single_bed',
+            'sofa_bed',
+            'bathroom_details_' . $lang,
+            'kitchen_details_' . $lang,
+            'preparations_' . $lang,
+            'media_tech_' . $lang,
+            'image',
+            'alt_images'
+        ];
+
+        return new RoomCollection(new RoomResource(Room::where('id', $id)->select($cols)->get()));
     }
 
     /**
