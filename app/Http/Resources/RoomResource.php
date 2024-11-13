@@ -17,6 +17,7 @@ class RoomResource extends JsonResource
         // return parent::toArray($request);
 
         return [
+            'id'    => $this->when($this->id, $this->id),
             'name_ar'    => $this->when($this->name_ar, $this->name_ar),
             'name_en'    => $this->when($this->name_en, $this->name_en),
             'description_ar'     => $this->when($this->description_ar, $this->description_ar),

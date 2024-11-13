@@ -19,6 +19,7 @@ class RoomController extends Controller
         $lang = $lang == 'en' ? 'en' : 'ar';
 
         $cols = [
+            'id',
             'name_' . $lang,
             'description_' . $lang,
             'space',
@@ -144,6 +145,7 @@ class RoomController extends Controller
         $lang = $lang == 'en' ? 'en' : 'ar';
 
         $cols = [
+            'id',
             'name_' . $lang,
             'description_' . $lang,
             'space',
