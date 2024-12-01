@@ -22,12 +22,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('register', [AuthController::class, 'register']);
-Route::post('login', [AuthController::class, 'login']);
-Route::post('forgot-password', [AuthController::class, 'sendResetLink']);
-Route::post('reset-password', [AuthController::class, 'resetPassword']);
-Route::get('email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
-Route::post('email/resend', [AuthController::class, 'resendVerificationEmail']);
+Route::post('register', [WebsiteDataController::class, 'register']);
+Route::post('login', [WebsiteDataController::class, 'login']);
+Route::post('forgot-password', [WebsiteDataController::class, 'sendResetLink']);
+Route::post('reset-password', [WebsiteDataController::class, 'resetPassword']);
+Route::get('email/verify/{id}/{hash}', [WebsiteDataController::class, 'verifyEmail'])->name('verification.verify');
+Route::post('email/resend', [WebsiteDataController::class, 'resendVerificationEmail']);
 
 Route::get('website-data/{lang?}', [WebsiteDataController::class, 'index']);
 Route::get('slider', [WebsiteDataController::class, 'slider']);
