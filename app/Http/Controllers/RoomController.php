@@ -7,6 +7,7 @@ use App\Http\Resources\RoomResource;
 use App\Models\Room;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class RoomController extends Controller
@@ -175,10 +176,24 @@ class RoomController extends Controller
 
         $checkInDate = Carbon::parse($request->checkInDate);
         $checkOutDate = Carbon::parse($request->checkOutDate);
-
         $nights = $checkInDate->diffInDays($checkOutDate);
 
-        // dd($nights);
+        $promo = null;
+        if ($request->promoCode) {
+            $promo = DB::table('coupons')
+            ->where('code', $request->promoCode)
+            ->where('is_active', true)
+            ->where('from', '<=', $checkInDate)
+            ->where('untill', '>=', $checkOutDate)
+            ->first();
+
+            if (!$promo) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid or expired promo code.'
+                ], 400);
+            }
+        }
 
         $availableRoomsQuery = Room::whereDoesntHave('reservations', function ($query) use ($checkInDate, $checkOutDate) {
             $query->where(function ($query) use ($checkInDate, $checkOutDate) {
@@ -187,12 +202,33 @@ class RoomController extends Controller
             });
         });
 
-        $availableRooms = $availableRoomsQuery->where('allowed_persons', '>=', $request->adults + $request->children)
-            ->select($cols)
-            ->get();
+        $availableRoomsQuery->where('allowed_persons', '>=', $request->adults + $request->children);
 
-        $availableRooms->each(function ($room) use ($nights) {
+
+        // Apply promo code discount
+        if ($promo) {
+            if ($promo->type === 'percentage') {
+                $availableRoomsQuery->select($cols)
+                    ->selectRaw('night_price - (night_price * ? / 100) as discounted_price', [$promo->value]);
+            } elseif ($promo->type === 'fixed') {
+                $availableRoomsQuery->select($cols)
+                    ->selectRaw('GREATEST(night_price - ?, 0) as discounted_price', [$promo->value]);
+            }
+        } else {
+            $availableRoomsQuery->select($cols);
+        }
+
+        // Fetch the available rooms
+        $availableRooms = $availableRoomsQuery->get();
+
+        // Attach the number of nights and discounted prices
+        $availableRooms->each(function ($room) use ($nights, $promo) {
             $room->nights = $nights;
+            if ($promo) {
+                $room->discounted_price = $promo->type === 'percentage'
+                ? $room->night_price - ($room->night_price * $promo->value / 100)
+                    : max($room->night_price - $promo->value, 0);
+            }
         });
 
         return new RoomCollection(new RoomResource($availableRooms));

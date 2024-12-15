@@ -124,7 +124,7 @@ class ReservationResource extends Resource
     {
         return [
             'index' => Pages\ListReservations::route('/'),
-            'create' => Pages\CreateReservation::route('/create'),
+            // 'create' => Pages\CreateReservation::route('/create'),
             'edit' => Pages\EditReservation::route('/{record}/edit'),
         ];
     }

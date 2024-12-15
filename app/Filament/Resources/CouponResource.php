@@ -26,9 +26,12 @@ class CouponResource extends Resource
                 Forms\Components\TextInput::make('code')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('type')
+                Forms\Components\Select::make('type')
                     ->required()
-                    ->maxLength(255),
+                    ->options([
+                        'percentage' => 'Percentage',
+                        'fixed' => 'Fixed',
+                    ]),
                 Forms\Components\TextInput::make('value')
                     ->required()
                     ->numeric(),
