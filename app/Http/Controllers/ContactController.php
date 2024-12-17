@@ -29,6 +29,11 @@ class ContactController extends Controller
 
         Contact::create($data);
 
+        // Mail::to($request->email)->send(new ContactUsMail($request));
+
+        // Mail::to('admin@example.com')->send(new ContactUsMail($request));
+
+
         return response('Your request submited succefuly.');
     }
 
