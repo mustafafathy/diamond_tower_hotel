@@ -21,8 +21,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class RoomResource extends Resource
 {
     protected static ?string $model = Room::class;
+    protected static ?string $navigationGroup = 'Hotel';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?int $navigationSort = 2;
+
+    protected static ?string $navigationIcon = 'heroicon-o-home';
 
     public static function form(Form $form): Form
     {

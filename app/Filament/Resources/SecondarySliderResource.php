@@ -17,7 +17,9 @@ class SecondarySliderResource extends Resource
 {
     protected static ?string $model = SecondarySlider::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    // protected static ?int $navigationSort = 6;
+    protected static ?string $navigationGroup = 'Slider';
+    protected static ?string $navigationIcon = 'heroicon-o-photo';
 
     public static function form(Form $form): Form
     {

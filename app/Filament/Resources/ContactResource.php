@@ -18,6 +18,10 @@ class ContactResource extends Resource
 {
     protected static ?string $model = Contact::class;
 
+    protected static ?int $navigationSort = 8;
+    protected static ?string $navigationGroup = 'Users';
+
+
     protected static ?string $navigationIcon = 'heroicon-o-user';
 
     public static function getNavigationSort(): ?int

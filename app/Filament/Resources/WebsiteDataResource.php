@@ -17,8 +17,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class WebsiteDataResource extends Resource
 {
     protected static ?string $model = WebsiteData::class;
+    protected static ?string $navigationGroup = 'Website';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?int $navigationSort = 7;
+
+    protected static ?string $navigationIcon = 'heroicon-o-information-circle';
 
     public static function form(Form $form): Form
     {

@@ -10,25 +10,33 @@ use Illuminate\View\View;
 class RoomSummaryWidget extends Widget
 {
     protected static string $view = 'filament.resources.room-resource.widgets.room-summary-widget';
+    protected int | string | array $columnSpan = 'full';
 
-    public function render() : view
+    public function render(): view
     {
         // Total rooms
         $totalRooms = Room::count();
 
         // Available rooms
-        $availableRooms = Room::where('availability', 1)->count();
+        $availableRooms = Room::where('availability', 1)
+            ->whereDoesntHave('reservations', function ($query) {
+                $query->where('start_date', '<=', now())
+                    ->where('end_date', '>=', now());
+            })
+            ->count();
+            
+        $unAvailableRooms = Room::where('availability', 1)
+            ->whereHas('reservations', function ($query) {
+                $query->where('start_date', '<=', now())
+                    ->where('end_date', '>=', now());
+            })
+            ->count();
 
-        // Rooms with specific features
-        $roomsWithView = Room::where('view', true)->count();
-        $roomsWithBathroom = Room::where('bathroom', true)->count();
-        $roomsWithKitchen = Room::where('kitchen', true)->count();
 
         return view('filament.resources.room-resource.widgets.room-summary-widget', compact(
             'totalRooms',
             'availableRooms',
-            'roomsWithView',
-            'roomsWithBathroom',
+            'unAvailableRooms',
         ));
     }
 }
