@@ -57,11 +57,28 @@ class WebsiteDataResource extends Resource
                     ])->columns(2),
                 Section::make()
                     ->schema([
+                        Forms\Components\TextInput::make('google_maps_url')
+                            ->label('Google Maps URL')
+                            ->required()
+                            ->reactive() // Make it reactive to trigger the extraction
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                // Extract coordinates once the URL is updated
+                                if ($state) {
+                                    $coordinates = self::extractCoordinatesFromUrl($state);
+                                    if ($coordinates) {
+                                        $set('latitude', $coordinates['latitude']);
+                                        $set('longitude', $coordinates['longitude']);
+                                    }
+                                }
+                            })
+                            ->columnSpanFull(),
                         Forms\Components\TextInput::make('latitude')
                             ->required()
+                            ->readonly()
                             ->numeric(),
                         Forms\Components\TextInput::make('longitude')
                             ->required()
+                            ->readonly()
                             ->numeric(),
                     ])->columns(2),
                 Forms\Components\TextInput::make('instagram_link')
@@ -124,5 +141,57 @@ class WebsiteDataResource extends Resource
             // 'create' => Pages\CreateWebsiteData::route('/create'),
             'edit' => Pages\EditWebsiteData::route('/{record}/edit'),
         ];
+    }
+
+    public static function extractAddressFromUrl($url)
+    {
+        // Parse the URL to get the query parameters
+        $urlParts = parse_url($url);
+
+        if (isset($urlParts['query'])) {
+            // Parse the query string into an associative array
+            parse_str($urlParts['query'], $queryParams);
+
+            // Return the value of 'q' parameter which contains the address
+            if (isset($queryParams['q'])) {
+                return urldecode($queryParams['q']); // Decode the URL-encoded address
+            }
+        }
+
+        return null; // Return null if 'q' parameter is not found
+    }
+
+    public static function extractCoordinatesFromUrl($url)
+    {
+        if (strpos($url, 'maps.app.goo.gl') !== false) {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // Follow redirects
+            curl_exec($ch);
+            $finalUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+            curl_close($ch);
+
+            $address = self::extractAddressFromUrl($finalUrl);
+
+            $apiKey = 'AIzaSyDQ-KjfF-16mlmAqTIC5TiwQ3wVn5ZcabE';
+            $url = "https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($address) . "&key=" . $apiKey;
+
+            $response = file_get_contents($url);
+            $data = json_decode($response, true);
+            if (isset($data['results'][0]['geometry']['location'])) {
+                $latitude = $data['results'][0]['geometry']['location']['lat'];
+                $longitude = $data['results'][0]['geometry']['location']['lng'];
+
+                return [
+                    'latitude' => $latitude,
+                    'longitude' => $longitude
+                ];
+            } else {
+                return null;
+            }
+        }
+
+        return null;
     }
 }

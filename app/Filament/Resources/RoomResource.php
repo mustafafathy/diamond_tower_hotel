@@ -12,6 +12,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Navigation\NavigationItem;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -21,7 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class RoomResource extends Resource
 {
     protected static ?string $model = Room::class;
-    protected static ?string $navigationGroup = 'Hotel';
+    // protected static ?string $navigationGroup = 'Hotel';
 
     protected static ?int $navigationSort = 2;
 
@@ -325,6 +326,23 @@ class RoomResource extends Resource
             'index' => Pages\ListRooms::route('/'),
             'create' => Pages\CreateRoom::route('/create'),
             'edit' => Pages\EditRoom::route('/{record}/edit'),
+            'manage' => pages\RoomManagement::route('/manage')
         ];
     }
+
+    public static function getNavigationItems(): array
+    {
+        return [
+            NavigationItem::make('Rooms')
+            ->url(static::getUrl('index'))
+            ->icon('heroicon-o-home')
+            ->group('Hotel'),
+
+            NavigationItem::make('Manage Rooms')
+            ->url(static::getUrl('manage'))
+            ->icon('heroicon-o-tag')
+            ->group('Hotel'),
+        ];
+    }
+
 }
