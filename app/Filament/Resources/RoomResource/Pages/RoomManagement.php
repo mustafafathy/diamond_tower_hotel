@@ -26,31 +26,33 @@ class RoomManagement extends ManageRecords
             return [
                 'id' => $item->id,
                 'name' => $item->name_en,
-                'description' => $item->description_en, // Add your additional fields here
                 'availability' => $item->availability,
+                'night_price' => $item->night_price,
             ];
         })->toArray();
     }
 
-    public function saveAvailability()
+    public function saveAvailabilityAndPrices()
     {
-        // Validate inputs
-        Validator::make($this->availability, [
-            '*.id' => 'required|exists:rooms,id', // Ensure the ID exists
-            '*.availability' => 'required|numeric|min:0', // Ensure availability is numeric and non-negative
-        ])->validate();
+        $this->validate([
+            'availability.*.availability' => 'required|integer|min:0',
+            'availability.*.night_price' => 'required|numeric|min:0',
+        ]);
 
-        // Update availability in the database
-        foreach ($this->availability as $room) {
-            Room::where('id', $room['id'])->update([
-                'availability' => $room['availability'],
-            ]);
+        foreach ($this->availability as $roomData) {
+            $room = Room::find($roomData['id']); // Replace with your model's query logic
+
+            if ($room) {
+                $room->update([
+                    'availability' => $roomData['availability'],
+                    'night_price' => $roomData['night_price'],
+                ]);
+            }
         }
 
-
         Notification::make()
-            ->title('Availability updated successfully!')
+            ->title('Rooms updated successfully!')
             ->success()
-            ->send(); 
+            ->send();
     }
 }

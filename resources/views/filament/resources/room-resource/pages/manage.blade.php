@@ -1,9 +1,9 @@
 <x-filament::page>
-    <form wire:submit.prevent="saveAvailability">
+    <form wire:submit.prevent="saveAvailabilityAndPrices">
         <div class="space-y-6">
             {{-- Header --}}
             <div class="text-lg font-bold text-gray-800 dark:text-gray-200">
-                Manage Availability
+                Manage Availability and Prices
             </div>
 
             {{-- List of Rooms --}}
@@ -15,18 +15,8 @@
                         <div class="font-semibold text-gray-700 dark:text-gray-200">
                             {{ $room['name'] }}
                         </div>
-
-                        {{-- Badge for Room Type --}}
-                        <span class="px-3 py-1 text-xs font-medium leading-tight text-gray-600 bg-gray-200 rounded-full dark:text-gray-100 dark:bg-gray-700">
-                            {{ $room['availability'] }}
-                        </span>
                     </div>
 
-                    {{-- Room Details --}}
-                    <div class="text-sm text-gray-500 dark:text-gray-400 mb-3">
-                        <div>Price: $150/night</div>
-                        <div>Description: {{ $room['description'] }}</div>
-                    </div>
 
                     {{-- Availability Input --}}
                     <div>
@@ -40,9 +30,22 @@
                             class="mt-1 dark:bg-gray-700 dark:text-gray-200" />
                     </div>
 
+                    {{-- Price Input --}}
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Nightly Price ($)
+                        </label>
+                        <x-filament::input
+                            type="number"
+                            wire:model.defer="availability.{{ $index }}.night_price"
+                            min="0"
+                            step="0.01"
+                            class="mt-1 dark:bg-gray-700 dark:text-gray-200" />
+                    </div>
+
                     {{-- Tooltip --}}
                     <div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
-                        Enter the number of available rooms. Set to 0 to mark as unavailable.
+                        Adjust the nightly and discounted prices for this room.
                     </div>
                 </div>
                 @endforeach
