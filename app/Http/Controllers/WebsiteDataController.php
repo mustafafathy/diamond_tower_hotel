@@ -31,7 +31,7 @@ class WebsiteDataController extends Controller
 
         // Optional: Send verification email if enabled
         if (method_exists($user, 'sendEmailVerificationNotification')) {
-            $user->sendEmailVerificationNotification();
+            // $user->sendEmailVerificationNotification();
         }
 
         return response()->json(['message' => 'User registered successfully'], 201);
