@@ -18,16 +18,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::middleware('auth:sanctum')->get('/user', [WebsiteDataController::class, 'user']);
+
+Route::post('/register', [WebsiteDataController::class, 'register']);
+Route::post('/verify-code', [WebsiteDataController::class, 'verifyCode']);
+Route::post('/resend-verification-code', [WebsiteDataController::class, 'resendVerificationCode']);
+
 
 Route::post('register', [WebsiteDataController::class, 'register']);
 Route::post('login', [WebsiteDataController::class, 'login']);
 Route::post('forgot-password', [WebsiteDataController::class, 'sendResetLink']);
 Route::post('reset-password', [WebsiteDataController::class, 'resetPassword']);
-Route::get('email/verify/{id}/{hash}', [WebsiteDataController::class, 'verifyEmail'])->name('verification.verify');
-Route::post('email/resend', [WebsiteDataController::class, 'resendVerificationEmail']);
 
 Route::get('website-data/{lang?}', [WebsiteDataController::class, 'index']);
 Route::get('slider', [WebsiteDataController::class, 'slider']);
