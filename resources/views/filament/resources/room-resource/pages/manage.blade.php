@@ -1,62 +1,95 @@
 <x-filament::page>
-    <form wire:submit.prevent="saveAvailabilityAndPrices">
-        <div class="space-y-6">
-            {{-- Header --}}
-            <div class="text-lg font-bold text-gray-800 dark:text-gray-200">
-                Manage Availability and Prices
-            </div>
+    <form wire:submit.prevent="saveAvailabilityAndPrices" class="space-y-8">
+        {{-- Header --}}
+        <div class="text-2xl font-bold text-gray-900 dark:text-white">
+            Manage Availability and Prices
+        </div>
 
-            {{-- List of Rooms --}}
-            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                @foreach($availability as $index => $room)
-                <div class="p-4 bg-white rounded-lg shadow dark:bg-gray-800">
-                    {{-- Room Header --}}
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="font-semibold text-gray-700 dark:text-gray-200">
-                            {{ $room['name'] }}
-                        </div>
-                    </div>
+        {{-- Room Cards --}}
+        <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            @foreach($availability as $index => $room)
+            <div class="p-6 bg-blue-50 border border-blue-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
+                {{-- Room Title --}}
+                <div class="mb-4 text-lg font-semibold text-blue-900 dark:text-blue-300">
+                    {{ $room['name'] }}
+                </div>
 
+                {{-- Availability Input --}}
+                <div class="mb-4">
+                    <label for="availability-{{ $index }}" class="block text-sm font-medium text-blue-700 dark:text-blue-300">
+                        Available Rooms
+                    </label>
+                    <x-filament::input
+                        id="availability-{{ $index }}"
+                        type="number"
+                        wire:model.defer="availability.{{ $index }}.availability"
+                        min="0"
+                        class="w-full px-3 py-2 mt-1 text-blue-900 bg-white border border-blue-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-blue-100 dark:border-gray-600" />
+                </div>
 
-                    {{-- Availability Input --}}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Available Rooms
+                {{-- Nightly Price Input --}}
+                <div class="mb-4">
+                    <label for="night-price-{{ $index }}" class="block text-sm font-medium text-blue-700 dark:text-blue-300">
+                        Nightly Price ($)
+                    </label>
+                    <x-filament::input
+                        id="night-price-{{ $index }}"
+                        type="number"
+                        wire:model.defer="availability.{{ $index }}.night_price"
+                        min="0"
+                        step="0.01"
+                        class="w-full px-3 py-2 mt-1 text-blue-900 bg-white border border-blue-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-blue-100 dark:border-gray-600" />
+                </div>
+
+                {{-- Discount Price Input --}}
+                <div class="mb-4">
+                    <label for="discount-price-{{ $index }}" class="block text-sm font-medium text-blue-700 dark:text-blue-300">
+                        Member Price ($)
+                    </label>
+                    <x-filament::input
+                        id="discount-price-{{ $index }}"
+                        type="number"
+                        wire:model.defer="availability.{{ $index }}.discount_price"
+                        min="0"
+                        step="0.01"
+                        class="w-full px-3 py-2 mt-1 text-blue-900 bg-white border border-blue-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-blue-100 dark:border-gray-600" />
+                </div>
+
+                {{-- Date Range Inputs --}}
+                <div class="flex gap-4">
+                    {{-- Start Date Input --}}
+                    <div class="flex-1">
+                        <label for="start-date-{{ $index }}" class="block text-sm font-medium text-blue-700 dark:text-blue-300">
+                            Start Date
                         </label>
                         <x-filament::input
-                            type="number"
-                            wire:model.defer="availability.{{ $index }}.availability"
-                            min="0"
-                            class="mt-1 dark:bg-gray-700 dark:text-gray-200" />
+                            id="start-date-{{ $index }}"
+                            type="date"
+                            wire:model.defer="availability.{{ $index }}.start_date"
+                            class="w-full px-3 py-2 mt-1 text-blue-900 bg-white border border-blue-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-blue-100 dark:border-gray-600" />
                     </div>
 
-                    {{-- Price Input --}}
-                    <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Nightly Price ($)
+                    {{-- End Date Input --}}
+                    <div class="flex-1">
+                        <label for="end-date-{{ $index }}" class="block text-sm font-medium text-blue-700 dark:text-blue-300">
+                            End Date
                         </label>
                         <x-filament::input
-                            type="number"
-                            wire:model.defer="availability.{{ $index }}.night_price"
-                            min="0"
-                            step="0.01"
-                            class="mt-1 dark:bg-gray-700 dark:text-gray-200" />
-                    </div>
-
-                    {{-- Tooltip --}}
-                    <div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
-                        Adjust the nightly and discounted prices for this room.
+                            id="end-date-{{ $index }}"
+                            type="date"
+                            wire:model.defer="availability.{{ $index }}.end_date"
+                            class="w-full px-3 py-2 mt-1 text-blue-900 bg-white border border-blue-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-blue-100 dark:border-gray-600" />
                     </div>
                 </div>
-                @endforeach
             </div>
+            @endforeach
+        </div>
 
-            {{-- Save Button --}}
-            <div class="text-right">
-                <x-filament::button type="submit" class="bg-primary-500 hover:bg-primary-600 text-white dark:bg-primary-600 dark:hover:bg-primary-700">
-                    Save Changes
-                </x-filament::button>
-            </div>
+        {{-- Save Button --}}
+        <div class="flex justify-end">
+            <x-filament::button type="submit" class="px-6 py-3 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600">
+                Save Changes
+            </x-filament::button>
         </div>
     </form>
 </x-filament::page>

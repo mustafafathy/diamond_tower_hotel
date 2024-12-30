@@ -28,6 +28,9 @@ class RoomManagement extends ManageRecords
                 'name' => $item->name_en,
                 'availability' => $item->availability,
                 'night_price' => $item->night_price,
+                'discount_price' => $item->discount_price,
+                'start_date' => $item->start_date,
+                'end_date' => $item->end_date,
             ];
         })->toArray();
     }
@@ -37,6 +40,9 @@ class RoomManagement extends ManageRecords
         $this->validate([
             'availability.*.availability' => 'required|integer|min:0',
             'availability.*.night_price' => 'required|numeric|min:0',
+            'availability.*.discount_price' => 'required|numeric|min:0',
+            'availability.*.start_date' => 'required|date',
+            'availability.*.end_date' => 'required|date',
         ]);
 
         foreach ($this->availability as $roomData) {
@@ -46,6 +52,9 @@ class RoomManagement extends ManageRecords
                 $room->update([
                     'availability' => $roomData['availability'],
                     'night_price' => $roomData['night_price'],
+                    'discount_price' => $roomData['discount_price'],
+                    'start_date' => $roomData['start_date'],
+                    'end_date' => $roomData['end_date'],
                 ]);
             }
         }
