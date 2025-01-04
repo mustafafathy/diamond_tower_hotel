@@ -158,6 +158,8 @@ class RoomController extends Controller
         $room->adults = $request->adults;
         $room->children = $request->children;
         $room->promoCode = $request->promoCode;
+        $room->checkInDate = $request->checkInDate;
+        $room->checkOutDate = $request->checkOutDate;
         $room->discounted_price = $promo
             ? ($promo->type === 'percentage'
             ? $room->night_price - ($room->night_price * $promo->value / 100)
