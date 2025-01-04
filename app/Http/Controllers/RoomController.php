@@ -153,33 +153,20 @@ class RoomController extends Controller
             ], 404);
         }
 
-        // Attach additional details to the room
-        $room->nights = $nights;
-        $room->adults = $request->adults;
-        $room->children = $request->children;
-        $room->promoCode = $request->promoCode;
+        // Prepare the search parameters
+        $searchParams = [
+            'checkInDate' => $request->checkInDate,
+            'checkOutDate' => $request->checkOutDate,
+            'adults' => $request->adults,
+            'children' => $request->children,
+            'promoCode' => $request->promoCode,
+            'nights' => $nights,
+        ];
 
-        if ($promo) {
-            $room->discounted_price = $promo->type === 'percentage'
-            ? $room->night_price - ($room->night_price * $promo->value / 100)
-                : max($room->night_price - $promo->value, 0);
-        }
-
-        return new RoomCollection(new RoomResource($room));
-
-        // Return room details with transformed data
-        return response()->json([
-            'status' => 'success',
-            'data' => new RoomResource($room),
-            'search_params' => [
-                'checkInDate' => $request->checkInDate,
-                'checkOutDate' => $request->checkOutDate,
-                'adults' => $request->adults,
-                'children' => $request->children,
-                'promoCode' => $request->promoCode,
-            ],
-        ]);
+        // Attach search params and promo details to the room resource
+        return new RoomResource($room, $searchParams);
     }
+
 
 
 
