@@ -67,7 +67,7 @@ class RoomController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id, $lang = 'ar')
+    public function show($id, $lang = 'ar', Request)
     {
         $lang = $lang == 'en' ? 'en' : 'ar';
 
@@ -153,6 +153,8 @@ class RoomController extends Controller
             'space',
             'allowed_persons',
             'availability',
+            'start_date',
+            'end_date',
             'view',
             'bathroom',
             'kitchen',
@@ -178,14 +180,15 @@ class RoomController extends Controller
         $checkOutDate = Carbon::parse($request->checkOutDate);
         $nights = $checkInDate->diffInDays($checkOutDate);
 
+        // Handle promo code validation
         $promo = null;
         if ($request->promoCode) {
             $promo = DB::table('coupons')
-            ->where('code', $request->promoCode)
-            ->where('is_active', true)
-            ->where('from', '<=', $checkInDate)
-            ->where('untill', '>=', $checkOutDate)
-            ->first();
+                ->where('code', $request->promoCode)
+                ->where('is_active', true)
+                ->where('from', '<=', $checkInDate)
+                ->where('untill', '>=', $checkOutDate)
+                ->first();
 
             if (!$promo) {
                 return response()->json([
@@ -195,15 +198,11 @@ class RoomController extends Controller
             }
         }
 
-        $availableRoomsQuery = Room::whereDoesntHave('reservations', function ($query) use ($checkInDate, $checkOutDate) {
-            $query->where(function ($query) use ($checkInDate, $checkOutDate) {
-                $query->where('start_date', '<', $checkOutDate)
-                    ->where('end_date', '>', $checkInDate);
-            });
-        });
-
-        $availableRoomsQuery->where('allowed_persons', '>=', $request->adults + $request->children);
-
+        // Query available rooms based on the rooms table properties
+        $availableRoomsQuery = Room::where('availability', '>=', $request->rooms)
+            ->where('allowed_persons', '>=', $request->adults + $request->children)
+            ->where('start_date', '<=', $checkInDate)
+            ->where('end_date', '>=', $checkOutDate);
 
         // Apply promo code discount
         if ($promo) {
@@ -224,9 +223,13 @@ class RoomController extends Controller
         // Attach the number of nights and discounted prices
         $availableRooms->each(function ($room) use ($nights, $promo) {
             $room->nights = $nights;
+            $room->adults = $request->adults;
+            $room->children = $request->children;
+            $room->promoCode = $request->promoCode;
+
             if ($promo) {
                 $room->discounted_price = $promo->type === 'percentage'
-                ? $room->night_price - ($room->night_price * $promo->value / 100)
+                    ? $room->night_price - ($room->night_price * $promo->value / 100)
                     : max($room->night_price - $promo->value, 0);
             }
         });
