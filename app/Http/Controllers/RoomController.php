@@ -221,7 +221,7 @@ class RoomController extends Controller
         $availableRooms = $availableRoomsQuery->get();
 
         // Attach the number of nights and discounted prices
-        $availableRooms->each(function ($room) use ($nights, $promo) {
+        $availableRooms->each(function ($room) use ($nights, $promo, $request) {
             $room->nights = $nights;
             $room->adults = $request->adults;
             $room->children = $request->children;
