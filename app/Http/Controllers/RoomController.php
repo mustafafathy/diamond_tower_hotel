@@ -174,7 +174,7 @@ class RoomController extends Controller
             'promoCode' => $request->promoCode,
         ];
 
-        return new RoomResource($room, $additionalParams);
+        return new RoomCollection(new RoomResource($room, $additionalParams));
     }
 
 
