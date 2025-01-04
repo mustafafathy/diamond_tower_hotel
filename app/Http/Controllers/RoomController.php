@@ -67,7 +67,7 @@ class RoomController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id, $lang = 'ar', Request)
+    public function show($id, $lang = 'ar', Request $request)
     {
         $lang = $lang == 'en' ? 'en' : 'ar';
 
