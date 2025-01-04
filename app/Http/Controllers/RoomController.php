@@ -153,18 +153,28 @@ class RoomController extends Controller
             ], 404);
         }
 
-        // Prepare the search parameters
-        $searchParams = [
+        // Prepare additional data
+        $room->nights = $nights;
+        $room->adults = $request->adults;
+        $room->children = $request->children;
+        $room->promoCode = $request->promoCode;
+        $room->discounted_price = $promo
+            ? ($promo->type === 'percentage'
+            ? $room->night_price - ($room->night_price * $promo->value / 100)
+                : max($room->night_price - $promo->value, 0))
+            : null;
+
+        // Pass the data to RoomResource
+        $additionalParams = [
             'checkInDate' => $request->checkInDate,
             'checkOutDate' => $request->checkOutDate,
+            'nights' => $nights,
             'adults' => $request->adults,
             'children' => $request->children,
             'promoCode' => $request->promoCode,
-            'nights' => $nights,
         ];
 
-        // Attach search params and promo details to the room resource
-        return new RoomResource($room, $searchParams);
+        return new RoomResource($room, $additionalParams);
     }
 
 
