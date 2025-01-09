@@ -150,9 +150,22 @@ class WebsiteDataController extends Controller
             'latitude',
             'longitude',
             'instagram_link',
+            'image_1',
+            'image_2',
+            'image_3',
+            'image_4',
         ];
 
-        return WebsiteData::select($cols)->first();
+        $websiteData = WebsiteData::select($cols)->first();
+
+        if ($websiteData) {
+            $websiteData->image_1 = asset('storage/' . $websiteData->image_1);
+            $websiteData->image_2 = asset('storage/' . $websiteData->image_2);
+            $websiteData->image_3 = asset('storage/' . $websiteData->image_3);
+            $websiteData->image_4 = asset('storage/' . $websiteData->image_4);
+        }
+
+        return $websiteData;
     }
 
     /**

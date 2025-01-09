@@ -84,6 +84,37 @@ class WebsiteDataResource extends Resource
                 Forms\Components\TextInput::make('instagram_link')
                     ->required()
                     ->maxLength(255),
+                Section::make()
+                    ->schema([
+                        Forms\Components\FileUpload::make('image_1')
+                            ->label('Image 1')
+                            ->image()
+                            ->directory('images/website_data')
+                            ->visibility('public')
+                            ->acceptedFileTypes(['image/*'])
+                            ->required(),
+                        Forms\Components\FileUpload::make('image_2')
+                            ->label('Image 2')
+                            ->image()
+                            ->directory('images/website_data')
+                            ->visibility('public')
+                            ->acceptedFileTypes(['image/*'])
+                            ->required(),
+                        Forms\Components\FileUpload::make('image_3')
+                            ->label('Image 3')
+                            ->image()
+                            ->directory('images/website_data')
+                            ->visibility('public')
+                            ->acceptedFileTypes(['image/*'])
+                            ->required(),
+                        Forms\Components\FileUpload::make('image_4')
+                            ->label('Image 4')
+                            ->image()
+                            ->directory('images/website_data')
+                            ->visibility('public')
+                            ->acceptedFileTypes(['image/*'])
+                            ->required(),
+                    ])->columns(4),
             ]);
     }
 
