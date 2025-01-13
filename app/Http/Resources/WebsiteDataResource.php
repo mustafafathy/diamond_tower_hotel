@@ -23,6 +23,10 @@ class WebsiteDataResource extends JsonResource
             'latitude' => $this->when($this->latitude, $this->latitude),
             'longitude' => $this->when($this->longitude, $this->longitude),
             'instagram_link' => $this->when($this->instagram_link, $this->instagram_link),
+            'image_1' => $this->when($this->image_1, $this->image_1),
+            'image_2' => $this->when($this->image_2, $this->image_2),
+            'image_3' => $this->when($this->image_3, $this->image_3),
+            'image_4' => $this->when($this->image_4, $this->image_4),
         ];
     }
 
