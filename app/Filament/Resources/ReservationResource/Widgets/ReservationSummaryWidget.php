@@ -9,6 +9,7 @@ use Filament\Widgets\Widget;
 class ReservationSummaryWidget extends Widget
 {
     protected static string $view = 'filament.resources.reservation-resource.widgets.reservation-summary-widget';
+    protected int | string | array $columnSpan = 'full';
 
     protected function getViewData(): array
     {

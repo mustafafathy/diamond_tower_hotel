@@ -9,6 +9,8 @@ use Filament\Widgets\Widget;
 class ContactWidget extends Widget
 {
     protected static string $view = 'filament.resources.contact-resource.widgets.contact-widget';
+    protected int | string | array $columnSpan = 'full';
+
 
     protected function getViewData(): array
     {

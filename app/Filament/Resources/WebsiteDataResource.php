@@ -64,7 +64,7 @@ class WebsiteDataResource extends Resource
                             ->afterStateUpdated(function ($state, callable $set) {
                                 // Extract coordinates once the URL is updated
                                 if ($state) {
-                                    $coordinates = self::extractCoordinatesFromUrl($state);
+                                    $coordinates = self::extractCoordinatesFromShortUrl($state);
                                     if ($coordinates) {
                                         $set('latitude', $coordinates['latitude']);
                                         $set('longitude', $coordinates['longitude']);
@@ -143,55 +143,96 @@ class WebsiteDataResource extends Resource
         ];
     }
 
-    public static function extractAddressFromUrl($url)
+    public static function resolveGoogleMapsUrl($shortUrl)
     {
-        // Parse the URL to get the query parameters
-        $urlParts = parse_url($url);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $shortUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // Follow redirects
+        curl_exec($ch);
+        $resolvedUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+        curl_close($ch);
 
-        if (isset($urlParts['query'])) {
-            // Parse the query string into an associative array
-            parse_str($urlParts['query'], $queryParams);
-
-            // Return the value of 'q' parameter which contains the address
-            if (isset($queryParams['q'])) {
-                return urldecode($queryParams['q']); // Decode the URL-encoded address
-            }
-        }
-
-        return null; // Return null if 'q' parameter is not found
+        return $resolvedUrl ?: null;
     }
 
     public static function extractCoordinatesFromUrl($url)
     {
-        if (strpos($url, 'maps.app.goo.gl') !== false) {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // Follow redirects
-            curl_exec($ch);
-            $finalUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-            curl_close($ch);
+        // Check for embedded coordinates in the URL
+        if (preg_match('/@([-.\d]+),([-.\d]+)/', $url, $matches)) {
+            return [
+                'latitude' => $matches[1],
+                'longitude' => $matches[2],
+            ];
+        }
 
-            $address = self::extractAddressFromUrl($finalUrl);
+        if (preg_match('/place\/([-.\d]+),([-.\d]+)/', $url, $matches)) {
+            return [
+                'latitude' => $matches[1],
+                'longitude' => $matches[2],
+            ];
+        }
 
-            $apiKey = 'AIzaSyDQ-KjfF-16mlmAqTIC5TiwQ3wVn5ZcabE';
-            $url = "https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($address) . "&key=" . $apiKey;
+        return null;
+    }
 
-            $response = file_get_contents($url);
-            $data = json_decode($response, true);
-            if (isset($data['results'][0]['geometry']['location'])) {
-                $latitude = $data['results'][0]['geometry']['location']['lat'];
-                $longitude = $data['results'][0]['geometry']['location']['lng'];
+    public static function extractAddressFromUrl($url)
+    {
+        $urlParts = parse_url($url);
 
-                return [
-                    'latitude' => $latitude,
-                    'longitude' => $longitude
-                ];
-            } else {
-                return null;
+        if (isset($urlParts['query'])) {
+            parse_str($urlParts['query'], $queryParams);
+            if (isset($queryParams['q'])) {
+                return urldecode($queryParams['q']); // Decode URL-encoded address
             }
         }
 
         return null;
+    }
+
+    public static function getCoordinatesFromAddress($address)
+    {
+        $apiKey = 'YOUR_GOOGLE_MAPS_API_KEY';
+        $url = "https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($address) . "&key=" . $apiKey;
+
+        $response = file_get_contents($url);
+
+        if (!$response) {
+            return ['error' => 'Failed to fetch data from Google API.'];
+        }
+
+        $data = json_decode($response, true);
+
+        if (isset($data['results'][0]['geometry']['location'])) {
+            return [
+                'latitude' => $data['results'][0]['geometry']['location']['lat'],
+                'longitude' => $data['results'][0]['geometry']['location']['lng'],
+            ];
+        }
+
+        return ['error' => 'No valid coordinates found for the given address.'];
+    }
+
+    public static function extractCoordinatesFromShortUrl($shortUrl)
+    {
+        $resolvedUrl = self::resolveGoogleMapsUrl($shortUrl);
+
+        if (!$resolvedUrl) {
+            return ['error' => 'Unable to resolve the shortened URL.'];
+        }
+
+        // Try extracting coordinates directly
+        $coordinates = self::extractCoordinatesFromUrl($resolvedUrl);
+        if ($coordinates) {
+            return $coordinates;
+        }
+
+        // Fallback: Extract address and use API
+        $address = self::extractAddressFromUrl($resolvedUrl);
+        if (!$address) {
+            return ['error' => 'No valid address found in the resolved URL.'];
+        }
+
+        return self::getCoordinatesFromAddress($address);
     }
 }
