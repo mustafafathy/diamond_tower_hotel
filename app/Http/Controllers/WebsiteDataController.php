@@ -154,6 +154,7 @@ class WebsiteDataController extends Controller
             'image_2',
             'image_3',
             'image_4',
+            'google_maps_url',
         ];
 
         $websiteData = WebsiteData::select($cols)->first();
