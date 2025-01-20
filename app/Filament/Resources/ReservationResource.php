@@ -105,7 +105,7 @@ class ReservationResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                DateRangeFilter::make('created_at')->defaultToday()
+                DateRangeFilter::make('start_date')->defaultToday()
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
