@@ -66,13 +66,20 @@ class RoomResource extends Resource
                     ])->columns(2),
 
                 Section::make('Features')->schema([
-                    Forms\Components\TextInput::make('space')
-                        ->required()
-                        ->numeric(),
-                    Forms\Components\TextInput::make('allowed_persons')
-                        ->required()
-                        ->numeric(),
+                    Forms\Components\TextInput::make('total')
+                    ->required()
+                    ->numeric(),
                     Forms\Components\TextInput::make('availability')
+                    ->required()
+                    ->numeric(),
+                    Forms\Components\TextInput::make('allowed_persons')
+                    ->required()
+                    ->numeric()
+                    ->label('Adults'),
+                    Forms\Components\TextInput::make('children')
+                    ->required()
+                    ->numeric(),
+                    Forms\Components\TextInput::make('space')
                         ->required()
                         ->numeric(),
                 ])->columns(2),
