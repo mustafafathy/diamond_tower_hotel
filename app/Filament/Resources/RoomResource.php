@@ -333,7 +333,7 @@ class RoomResource extends Resource
             'index' => Pages\ListRooms::route('/'),
             'create' => Pages\CreateRoom::route('/create'),
             'edit' => Pages\EditRoom::route('/{record}/edit'),
-            'manage' => pages\RoomManagement::route('/manage')
+            // 'manage' => pages\RoomManagement::route('/manage')
         ];
     }
 
@@ -345,10 +345,10 @@ class RoomResource extends Resource
             ->icon('heroicon-o-home')
             ->group('Hotel'),
 
-            NavigationItem::make('Manage Rooms')
-            ->url(static::getUrl('manage'))
-            ->icon('heroicon-o-tag')
-            ->group('Hotel'),
+            // NavigationItem::make('Manage Rooms')
+            // ->url(static::getUrl('manage'))
+            // ->icon('heroicon-o-tag')
+            // ->group('Hotel'),
         ];
     }
 
