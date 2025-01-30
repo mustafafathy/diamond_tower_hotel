@@ -54,7 +54,7 @@ class RoomResource extends JsonResource
             'checkInDate' => $this->when($this->checkInDate, date('Y-m-d', strtotime($this->checkInDate))),
             'checkOutDate' => $this->when($this->checkOutDate, date('Y-m-d', strtotime($this->checkOutDate))),
 
-            'member_pay' => $this->when($this->nights, ($this->discount_price * $this->nights)),
+            'member_pay' => $this->when($this->total_price, $this->total_price),
             'public_pay' => $this->when($this->nights, ($this->night_price * $this->nights)),
         ];
     }

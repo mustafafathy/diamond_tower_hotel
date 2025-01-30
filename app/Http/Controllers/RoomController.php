@@ -229,38 +229,34 @@ class RoomController extends Controller
         $lang = $lang == 'en' ? 'en' : 'ar';
 
         $cols = [
-            'id',
-            'name_' . $lang,
-            'description_' . $lang,
-            'space',
-            'allowed_persons',
-            'availability',
-            'start_date',
-            'end_date',
-            'view',
-            'bathroom',
-            'kitchen',
-            'tv',
-            'air_condition',
-            'wifi',
-            'smoke',
-            'disabled',
-            'king_bed',
-            'single_bed',
-            'sofa_bed',
-            'bathroom_details_' . $lang,
-            'kitchen_details_' . $lang,
-            'preparations_' . $lang,
-            'media_tech_' . $lang,
-            'image',
-            'alt_images',
-            'night_price',
-            'discount_price'
+            'rooms.id',
+            'rooms.name_' . $lang,
+            'rooms.description_' . $lang,
+            'rooms.space',
+            'rooms.allowed_persons',
+            'rooms.view',
+            'rooms.bathroom',
+            'rooms.kitchen',
+            'rooms.tv',
+            'rooms.air_condition',
+            'rooms.wifi',
+            'rooms.smoke',
+            'rooms.disabled',
+            'rooms.king_bed',
+            'rooms.single_bed',
+            'rooms.sofa_bed',
+            'rooms.bathroom_details_' . $lang,
+            'rooms.kitchen_details_' . $lang,
+            'rooms.preparations_' . $lang,
+            'rooms.media_tech_' . $lang,
+            'rooms.image',
+            'rooms.night_price',
+            'rooms.alt_images'
         ];
 
         $checkInDate = Carbon::parse($request->checkInDate);
         $checkOutDate = Carbon::parse($request->checkOutDate);
-        $nights = $checkInDate->diffInDays($checkOutDate);
+        $nights = $checkInDate->diffInDays($checkOutDate) + 2;
 
         // Handle promo code validation
         $promo = null;
@@ -280,29 +276,54 @@ class RoomController extends Controller
             }
         }
 
-        // Query available rooms based on the rooms table properties
-        $availableRoomsQuery = Room::where('availability', '>=', $request->rooms)
-            ->where('allowed_persons', '>=', $request->adults + $request->children)
-            ->where('start_date', '<=', $checkInDate)
-            ->where('end_date', '>=', $checkOutDate);
+        // Query rooms with available dates
+        $availableRoomsQuery = Room::join('available_rooms', 'rooms.id', '=', 'available_rooms.room_id')
+            // ->whereBetween('available_rooms.date', [$checkInDate, $checkOutDate])
+            ->whereBetween('available_rooms.date', [$checkInDate->format('Y-m-d'), $checkOutDate->format('Y-m-d')])
+            ->where('available_rooms.available', '>=', $request->rooms) // Ensure enough rooms are available
+            ->where('rooms.allowed_persons', '>=', $request->adults + $request->children)
+            ->groupBy(
+                'rooms.id',
+                'rooms.name_' . $lang,
+                'rooms.description_' . $lang,
+                'rooms.space',
+                'rooms.allowed_persons',
+                'rooms.view',
+                'rooms.bathroom',
+                'rooms.kitchen',
+                'rooms.tv',
+                'rooms.air_condition',
+                'rooms.wifi',
+                'rooms.smoke',
+                'rooms.disabled',
+                'rooms.king_bed',
+                'rooms.single_bed',
+                'rooms.sofa_bed',
+                'rooms.bathroom_details_' . $lang,
+                'rooms.kitchen_details_' . $lang,
+                'rooms.preparations_' . $lang,
+                'rooms.media_tech_' . $lang,
+                'rooms.image',
+                'rooms.alt_images',
+                'rooms.night_price',
+
+            )
+            // ->havingRaw('COUNT(DISTINCT available_rooms.date) = ?', [$nights]) // Ensure availability for the full stay
+            ->select($cols)
+            ->selectRaw('SUM(available_rooms.price) as total_price');
 
         // Apply promo code discount
         if ($promo) {
             if ($promo->type === 'percentage') {
-                $availableRoomsQuery->select($cols)
-                    ->selectRaw('night_price - (night_price * ? / 100) as discounted_price', [$promo->value]);
+                $availableRoomsQuery->selectRaw('SUM(available_rooms.price) - (SUM(available_rooms.price) * ? / 100) as discounted_price', [$promo->value]);
             } elseif ($promo->type === 'fixed') {
-                $availableRoomsQuery->select($cols)
-                    ->selectRaw('GREATEST(night_price - ?, 0) as discounted_price', [$promo->value]);
+                $availableRoomsQuery->selectRaw('GREATEST(SUM(available_rooms.price) - ?, 0) as discounted_price', [$promo->value]);
             }
-        } else {
-            $availableRoomsQuery->select($cols);
         }
 
-        // Fetch the available rooms
+        // Fetch available rooms
         $availableRooms = $availableRoomsQuery->get();
-
-        // Attach the number of nights and discounted prices
+        // Attach additional info
         $availableRooms->each(function ($room) use ($nights, $promo, $request) {
             $room->nights = $nights;
             $room->adults = $request->adults;
@@ -311,11 +332,12 @@ class RoomController extends Controller
 
             if ($promo) {
                 $room->discounted_price = $promo->type === 'percentage'
-                    ? $room->night_price - ($room->night_price * $promo->value / 100)
-                    : max($room->night_price - $promo->value, 0);
+                ? $room->total_price - ($room->total_price * $promo->value / 100)
+                    : max($room->total_price - $promo->value, 0);
             }
         });
 
-        return new RoomCollection(new RoomResource($availableRooms));
+        return new RoomCollection(RoomResource::collection($availableRooms));
     }
+
 }
