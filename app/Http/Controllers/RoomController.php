@@ -25,6 +25,7 @@ class RoomController extends Controller
             'description_' . $lang,
             'space',
             'allowed_persons',
+            'children',
             'availability',
             'view',
             'bathroom',
@@ -127,7 +128,7 @@ class RoomController extends Controller
         $promo = null;
         if ($request->promoCode) {
             $promo = DB::table('coupons')
-            ->where('code', $request->promoCode)
+                ->where('code', $request->promoCode)
                 ->where('is_active', true)
                 ->where('from', '<=', $checkInDate)
                 ->where('untill', '>=', $checkOutDate)
@@ -168,7 +169,7 @@ class RoomController extends Controller
         $room->checkOutDate = $request->checkOutDate;
         $room->discounted_price = $promo
             ? ($promo->type === 'percentage'
-            ? $room->night_price - ($room->night_price * $promo->value / 100)
+                ? $room->night_price - ($room->night_price * $promo->value / 100)
                 : max($room->night_price - $promo->value, 0))
             : null;
 
@@ -338,12 +339,11 @@ class RoomController extends Controller
 
             if ($promo) {
                 $room->discounted_price = $promo->type === 'percentage'
-                ? $room->total_price - ($room->total_price * $promo->value / 100)
+                    ? $room->total_price - ($room->total_price * $promo->value / 100)
                     : max($room->total_price - $promo->value, 0);
             }
         });
 
         return new RoomCollection(RoomResource::collection($availableRooms));
     }
-
 }
