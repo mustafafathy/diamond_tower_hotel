@@ -72,9 +72,12 @@ class RoomController extends Controller
         $validator = Validator::make($request->all(), [
             'checkInDate' => 'required|date|after_or_equal:today',
             'checkOutDate' => 'required|date|after:checkInDate',
+            'rooms' => 'required|integer|min:1',
             'adults' => 'required|integer|min:1',
             'children' => 'nullable|integer|min:0',
-            'promoCode' => 'nullable|string|max:20',
+            'childAges' => 'array',
+            'childAges.*' => 'integer|min:0|max:17',
+            'promoCode' => 'nullable|string|max:20'
         ]);
 
         if ($validator->fails()) {
@@ -87,38 +90,38 @@ class RoomController extends Controller
         $lang = $lang === 'en' ? 'en' : 'ar';
 
         $cols = [
-            'id',
-            'name_' . $lang,
-            'description_' . $lang,
-            'space',
-            'allowed_persons',
-            'availability',
-            'start_date',
-            'end_date',
-            'view',
-            'bathroom',
-            'kitchen',
-            'tv',
-            'air_condition',
-            'wifi',
-            'smoke',
-            'disabled',
-            'king_bed',
-            'single_bed',
-            'sofa_bed',
-            'bathroom_details_' . $lang,
-            'kitchen_details_' . $lang,
-            'preparations_' . $lang,
-            'media_tech_' . $lang,
-            'image',
-            'alt_images',
-            'night_price',
-            'discount_price',
+            'rooms.id',
+            'rooms.name_' . $lang,
+            'rooms.description_' . $lang,
+            'rooms.space',
+            'rooms.allowed_persons',
+            'rooms.availability',
+            'rooms.start_date',
+            'rooms.end_date',
+            'rooms.view',
+            'rooms.bathroom',
+            'rooms.kitchen',
+            'rooms.tv',
+            'rooms.air_condition',
+            'rooms.wifi',
+            'rooms.smoke',
+            'rooms.disabled',
+            'rooms.king_bed',
+            'rooms.single_bed',
+            'rooms.sofa_bed',
+            'rooms.bathroom_details_' . $lang,
+            'rooms.kitchen_details_' . $lang,
+            'rooms.preparations_' . $lang,
+            'rooms.media_tech_' . $lang,
+            'rooms.image',
+            'rooms.alt_images',
+            'rooms.night_price',
+            'rooms.discount_price',
         ];
 
         $checkInDate = Carbon::parse($request->checkInDate);
         $checkOutDate = Carbon::parse($request->checkOutDate);
-        $nights = $checkInDate->diffInDays($checkOutDate);
+        $nights = $checkInDate->diffInDays($checkOutDate)  + 2;
 
         // Handle promo code validation
         $promo = null;
@@ -138,13 +141,16 @@ class RoomController extends Controller
             }
         }
 
-        // Fetch the room
-        $room = Room::where('id', $id)
-            ->where('allowed_persons', '>=', $request->adults + $request->children)
-            ->where('start_date', '<=', $checkInDate)
-            ->where('end_date', '>=', $checkOutDate)
+        $room = Room::where('rooms.id', $id)
+            ->join('available_rooms', 'rooms.id', '=', 'available_rooms.room_id')
+            ->whereBetween('available_rooms.date', [$checkInDate->format('Y-m-d'), $checkOutDate->format('Y-m-d')])
+            ->where('available_rooms.available', '>=', $request->rooms) // Ensure enough rooms are available
+            ->whereColumn('available_rooms.available', '>', 'available_rooms.booked') // Ensure enough rooms are available
+            ->where('rooms.allowed_persons', '>=', $request->adults + $request->children)
+            ->groupBy($cols)
+            ->havingRaw('COUNT(DISTINCT available_rooms.date) = ?', [$nights]) // Ensure availability for the full stay
             ->select($cols)
-            ->first();
+            ->selectRaw('SUM(available_rooms.price) as total_price')->first();
 
         if (!$room) {
             return response()->json([
