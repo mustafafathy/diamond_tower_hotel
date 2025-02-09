@@ -394,7 +394,6 @@ class RoomController extends Controller
         ]);
     }
 
-
     public function confirmReservation(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -402,73 +401,190 @@ class RoomController extends Controller
             'user_id' => 'required|exists:users,id',
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after:start_date',
-            'number_of_guests' => 'required|integer|min:1',
+            'adults' => 'required|integer|min:1',
+            'children' => 'nullable|integer|min:0',
             'promoCode' => 'nullable|string|max:20'
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['status' => 'error', 'errors' => $validator->errors()], 422);
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
         $checkInDate = Carbon::parse($request->start_date);
         $checkOutDate = Carbon::parse($request->end_date);
-        $nights = $checkInDate->diffInDays($checkOutDate);
+        $nights = $checkInDate->diffInDays($checkOutDate) + 2;
 
-        // Check room availability
-        $availableRooms = DB::table('available_rooms')
+        // ** Fetch room availability strictly from 'available_rooms' **
+        $roomAvailability = DB::table('available_rooms')
             ->where('room_id', $request->room_id)
             ->whereBetween('date', [$checkInDate->format('Y-m-d'), $checkOutDate->format('Y-m-d')])
-            ->whereColumn('available', '>', 'booked')
-            ->count();
+            ->select('date', 'price', 'available', 'booked')
+            ->get();
 
-        if ($availableRooms < $nights) {
-            return response()->json(['status' => 'error', 'message' => 'Room not available for the selected dates.'], 400);
+        if ($roomAvailability->count() !== $nights) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Room is not available for all selected dates.'
+            ], 400);
         }
 
-        // Get room pricing
-        $room = Room::find($request->room_id);
-        $totalPrice = $room->night_price * $nights;
-        // dd($room, $totalPrice);
-
-        // Apply promo code discount
-        if ($request->promoCode) {
-            $promo = DB::table('coupons')->where('code', $request->promoCode)->where('is_active', true)->first();
-            if ($promo) {
-                $totalPrice -= ($promo->type === 'percentage') ? ($totalPrice * $promo->value / 100) : min($promo->value, $totalPrice);
+        // ** Prevent overbooking **
+        foreach ($roomAvailability as $day) {
+            if ($day->booked >= $day->available) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Not enough available rooms on ' . $day->date
+                ], 400);
             }
         }
 
-        // Calculate tax and government tax
-        $tax = $totalPrice * 0.05; // 5% tax
-        $govTax = $totalPrice * 0.02; // 2% government tax
-        $finalPrice = $totalPrice + $tax + $govTax;
+        // ** Calculate total price from available_rooms **
+        $totalPrice = $roomAvailability->sum('price');
 
-        // Create reservation record
+        // ** Check for a valid promo code **
+        $discount = 0;
+        $promo = null;
+        if ($request->promoCode) {
+            $promo = DB::table('coupons')
+                ->where('code', $request->promoCode)
+                ->where('is_active', true)
+                ->where('from', '<=', $checkInDate)
+                ->where('until', '>=', $checkOutDate)
+                ->first();
+
+            if ($promo) {
+                if ($promo->type === 'percentage') {
+                    $discount = $totalPrice * ($promo->value / 100);
+                } elseif ($promo->type === 'fixed') {
+                    $discount = min($promo->value, $totalPrice);
+                }
+            }
+        }
+
+        // ** Calculate final total price **
+        $finalPrice = max($totalPrice - $discount, 0);
+
+        // ** Create reservation with strict data integrity **
         $reservation = Reservation::create([
             'room_id' => $request->room_id,
             'user_id' => $request->user_id,
             'start_date' => $checkInDate,
             'end_date' => $checkOutDate,
             'total_price' => $finalPrice,
-            'discount' => $totalPrice - $room->night_price * $nights,
-            'tax' => $tax,
-            'gov_tax' => $govTax,
-            'number_of_guests' => $request->number_of_guests,
-            'is_confirmed' => false, // Confirmation after payment
+            'discount' => $discount,
+            'tax' => 0, // Add tax logic if needed
+            'gov_tax' => 0, // Add gov tax logic if needed
+            'number_of_guests' => $request->adults + $request->children,
+            // 'persons' => $request->adults,
+            'is_confirmed' => true,
             'is_cancelled' => false,
             'coupon_id' => $promo->id ?? null,
-            'created_at' => now(),
-            'updated_at' => now()
+            // 'first_name' => $request->first_name,
+            // 'last_name' => $request->last_name,
+            // 'guest_name' => $request->guest_name ?? null,
+            // 'email' => $request->email,
+            // 'country' => $request->country,
+            // 'phone' => $request->phone,
+            // 'same_person' => $request->same_person,
+            // 'for_work' => $request->for_work,
+            // 'need_parking' => $request->need_parking,
+            'notes' => $request->notes,
+            // 'arrival_time' => $request->arrival_time
         ]);
 
-        // Update available rooms (increment booked count)
-        DB::table('available_rooms')
-            ->where('room_id', $request->room_id)
-            ->whereBetween('date', [$checkInDate->format('Y-m-d'), $checkOutDate->format('Y-m-d')])
-            ->increment('booked');
+        // ** Update the 'booked' count in 'available_rooms' to reflect the reservation **
+        foreach ($roomAvailability as $day) {
+            DB::table('available_rooms')
+                ->where('room_id', $request->room_id)
+                ->where('date', $day->date)
+                ->increment('booked');
+        }
 
-        return response()->json(['status' => 'success', 'message' => 'Reservation created successfully.', 'reservation_id' => $reservation->id]);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Reservation confirmed successfully!',
+            'reservation' => $reservation
+        ], 201);
     }
+
+
+    // public function confirmReservation(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'room_id' => 'required|exists:rooms,id',
+    //         'user_id' => 'required|exists:users,id',
+    //         'start_date' => 'required|date|after_or_equal:today',
+    //         'end_date' => 'required|date|after:start_date',
+    //         'number_of_guests' => 'required|integer|min:1',
+    //         'promoCode' => 'nullable|string|max:20'
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json(['status' => 'error', 'errors' => $validator->errors()], 422);
+    //     }
+
+    //     $checkInDate = Carbon::parse($request->start_date);
+    //     $checkOutDate = Carbon::parse($request->end_date);
+    //     $nights = $checkInDate->diffInDays($checkOutDate);
+
+    //     // Check room availability
+    //     $availableRooms = DB::table('available_rooms')
+    //         ->where('room_id', $request->room_id)
+    //         ->whereBetween('date', [$checkInDate->format('Y-m-d'), $checkOutDate->format('Y-m-d')])
+    //         ->whereColumn('available', '>', 'booked')
+    //         ->count();
+
+    //     if ($availableRooms < $nights) {
+    //         return response()->json(['status' => 'error', 'message' => 'Room not available for the selected dates.'], 400);
+    //     }
+
+    //     // Get room pricing
+    //     $room = Room::find($request->room_id);
+    //     $totalPrice = $room->night_price * $nights;
+    //     // dd($room, $totalPrice);
+
+    //     // Apply promo code discount
+    //     if ($request->promoCode) {
+    //         $promo = DB::table('coupons')->where('code', $request->promoCode)->where('is_active', true)->first();
+    //         if ($promo) {
+    //             $totalPrice -= ($promo->type === 'percentage') ? ($totalPrice * $promo->value / 100) : min($promo->value, $totalPrice);
+    //         }
+    //     }
+
+    //     // Calculate tax and government tax
+    //     $tax = $totalPrice * 0.05; // 5% tax
+    //     $govTax = $totalPrice * 0.02; // 2% government tax
+    //     $finalPrice = $totalPrice + $tax + $govTax;
+
+    //     // Create reservation record
+    //     $reservation = Reservation::create([
+    //         'room_id' => $request->room_id,
+    //         'user_id' => $request->user_id,
+    //         'start_date' => $checkInDate,
+    //         'end_date' => $checkOutDate,
+    //         'total_price' => $finalPrice,
+    //         'discount' => $totalPrice - $room->night_price * $nights,
+    //         'tax' => $tax,
+    //         'gov_tax' => $govTax,
+    //         'number_of_guests' => $request->number_of_guests,
+    //         'is_confirmed' => false, // Confirmation after payment
+    //         'is_cancelled' => false,
+    //         'coupon_id' => $promo->id ?? null,
+    //         'created_at' => now(),
+    //         'updated_at' => now()
+    //     ]);
+
+    //     // Update available rooms (increment booked count)
+    //     DB::table('available_rooms')
+    //         ->where('room_id', $request->room_id)
+    //         ->whereBetween('date', [$checkInDate->format('Y-m-d'), $checkOutDate->format('Y-m-d')])
+    //         ->increment('booked');
+
+    //     return response()->json(['status' => 'success', 'message' => 'Reservation created successfully.', 'reservation_id' => $reservation->id]);
+    // }
 
     // public function confirmReservation(Request $request)
     // {
