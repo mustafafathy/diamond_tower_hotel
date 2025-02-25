@@ -64,7 +64,7 @@ class AvailableRoomResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('room_id')
+                Tables\Columns\TextColumn::make('room.name_en')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('date')
@@ -73,11 +73,11 @@ class AvailableRoomResource extends Resource
                 Tables\Columns\TextColumn::make('available')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('price')
-                    ->money()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('booked')
                     ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('price')
+                    ->money()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
