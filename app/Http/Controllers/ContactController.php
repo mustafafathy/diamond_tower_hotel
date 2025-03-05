@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ContactUsMail;
 use App\Models\Contact;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class ContactController extends Controller
 {
@@ -29,9 +31,9 @@ class ContactController extends Controller
 
         Contact::create($data);
 
-        // Mail::to($request->email)->send(new ContactUsMail($request));
+        Mail::to($request->email)->send(new ContactUsMail($request));
 
-        // Mail::to('admin@example.com')->send(new ContactUsMail($request));
+        Mail::to('mostafafathy11999@gmail.com')->send(new ContactUsMail($request));
 
 
         return response('Your request submited succefuly.');

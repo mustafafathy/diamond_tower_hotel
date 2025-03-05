@@ -1,70 +1,36 @@
 <?php
-
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 class ContactUsMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $contactData;
-
+    public $data;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($contactData)
+    public function __construct($data)
     {
-        $this->contactData = $contactData;
-
-    }
-
-        public function build()
-    {
-        return $this->subject('New Contact Us Submission')
-                    ->view('emails.contactus')
-                    ->with([
-                        'name' => $this->contactData['name'],
-                        'phone' => $this->contactData['phone'],
-                        'email' => $this->contactData['email'],
-                        'message' => $this->contactData['message'],
-                    ]);
-    }
-
-    
-    /**
-     * Get the message envelope.
-     */
-    public function envelope(): Envelope
-    {
-        return new Envelope(
-            subject: 'Contact Us Mail',
-        );
+        $this->data = $data;
     }
 
     /**
-     * Get the message content definition.
+     * Build the message.
      */
-    public function content(): Content
+    public function build()
     {
-        return new Content(
-            view: 'view.name',
-        );
-    }
-
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
-    public function attachments(): array
-    {
-        return [];
+        return $this->subject('New Contact Message')
+            ->view('emails.contactus')
+            ->with([
+                'name' => $this->data['name'],
+                'phone' => $this->data['phone'],
+                'email' => $this->data['email'],
+                'messageContent' => $this->data['message'],
+            ]);
     }
 }

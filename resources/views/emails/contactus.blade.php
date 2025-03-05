@@ -11,6 +11,7 @@
     <p><strong>Name:</strong> {{ $name }}</p>
     <p><strong>Phone:</strong> {{ $phone }}</p>
     <p><strong>Email:</strong> {{ $email }}</p>
-    <p><strong>Message:</strong> {{ $message }}</p>
+    <p><strong>Message:</strong> {{ $messageContent }}</p>
 </body>
 </html>
+
