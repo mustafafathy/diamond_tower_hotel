@@ -58,3 +58,16 @@ Route::get('/migrate', function () {
         'resultCode' => $resultCode,
     ]);
 });
+
+Route::get('/rebase-initial', function () {
+    // Run the custom rebase Artisan command
+    $output = null;
+    $resultCode = null;
+    exec('git:rebase-initial', $resultCode);
+
+    // Check the output (you can also capture output if needed)
+    return response()->json([
+        'output' => $output,
+        'resultCode' => $resultCode,
+    ]);
+});
