@@ -480,7 +480,7 @@ class RoomController extends Controller
             'gov_tax' => 0, // Add gov tax logic if needed
             'number_of_guests' => $request->adults + $request->children,
             'persons' => $request->adults,
-            'is_confirmed' => true,
+            'is_confirmed' => false,
             'is_cancelled' => false,
             'coupon_id' => $promo->id ?? null,
             'first_name' => $request->first_name,

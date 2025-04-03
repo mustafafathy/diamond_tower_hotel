@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Reservation;
+use Auth;
 use Illuminate\Http\Request;
 
 class ReservationController extends Controller
@@ -12,7 +13,18 @@ class ReservationController extends Controller
      */
     public function index()
     {
-        //
+        $user = Auth::user();
+
+        // Retrieve reservations for the logged-in user
+        $reservations = Reservation::where('user_id', $user->id)
+            ->with('room') // Ensure you have a Room model & relation
+            ->orderBy('start_date', 'desc')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'reservations' => $reservations,
+        ]);
     }
 
     /**

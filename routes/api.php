@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\WebsiteDataController;
 use Illuminate\Http\Request;
@@ -38,3 +39,4 @@ Route::get('rooms/{lang?}', [RoomController::class, 'index']);
 Route::get('room/{id}/{lang?}', [RoomController::class, 'show']);
 Route::get('get-available-rooms/{lang?}', [RoomController::class, 'getAvailableRooms']);
 Route::middleware('auth:sanctum')->post('confirm-booking', [RoomController::class, 'confirmReservation']);
+Route::middleware('auth:sanctum')->get('/user/reservations', [ReservationController::class, 'index']);
